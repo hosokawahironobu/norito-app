@@ -125,11 +125,55 @@ const NoritoApp = () => {
       const html2canvas = (await import('html2canvas')).default;
       const { jsPDF } = await import('jspdf');
 
-      const canvas = await html2canvas(pdfRef.current, {
-        scale: 2,
-        backgroundColor: '#fffbf0',
-        logging: false
-      });
+     const handlePrintPDF = async () => {
+  if (!pdfRef.current) return;
+
+  try {
+    const html2canvas = (await import('html2canvas')).default;
+    const { jsPDF } = await import('jspdf');
+
+    // 一時的に印刷用のスタイルを適用
+    const originalStyle = pdfRef.current.style.cssText;
+    pdfRef.current.style.cssText = `
+      width: 800px;
+      height: 1000px;
+      padding: 40px;
+      background: #fffbf0;
+      writing-mode: vertical-rl;
+      text-orientation: upright;
+      font-size: 24px;
+      line-height: 2.5;
+      overflow: visible;
+    `;
+
+    const canvas = await html2canvas(pdfRef.current, {
+      scale: 3,
+      backgroundColor: '#fffbf0',
+      logging: false,
+      useCORS: true
+    });
+
+    // スタイルを元に戻す
+    pdfRef.current.style.cssText = originalStyle;
+
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4'
+    });
+
+    const imgWidth = 210;
+    const pageHeight = 297;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+    pdf.save('祝詞.pdf');
+  } catch (error) {
+    console.error('PDF生成エラー:', error);
+    alert('PDF生成に失敗しました。');
+  }
+};
 
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF({

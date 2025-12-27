@@ -118,34 +118,52 @@ const NoritoApp = () => {
     document.body.removeChild(element);
   };
 
-  const handlePrintPDF = async () => {
-    if (!pdfRef.current) return;
-
-    try {
-      const html2canvas = (await import('html2canvas')).default;
-      const { jsPDF } = await import('jspdf');
-
-     const handlePrintPDF = async () => {
-  if (!pdfRef.current) return;
-
-  try {
-    const html2canvas = (await import('html2canvas')).default;
-    const { jsPDF } = await import('jspdf');
-
-    // 一時的に印刷用のスタイルを適用
-    const originalStyle = pdfRef.current.style.cssText;
-    pdfRef.current.style.cssText = `
-      width: 800px;
-      height: 1000px;
-      padding: 40px;
-      background: #fffbf0;
-      writing-mode: vertical-rl;
-      text-orientation: upright;
-      font-size: 24px;
-      line-height: 2.5;
-      overflow: visible;
-    `;
-
+  const handlePrintPDF = () => {
+  if (!convertedText) return;
+  
+  // 印刷用のウィンドウを作成
+  const printWindow = window.open('', '_blank');
+  const cleanText = convertedText.replace(/class="text-sm align-text-top"/g, 'style="font-size: 0.7em; vertical-align: top;"');
+  
+  printWindow.document.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8">
+      <title>祝詞</title>
+      <style>
+        @media print {
+          @page {
+            size: A4 portrait;
+            margin: 20mm;
+          }
+        }
+        body {
+          margin: 0;
+          padding: 20px;
+          font-family: "ヒラギノ明朝 Pro", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
+          writing-mode: vertical-rl;
+          text-orientation: upright;
+          font-size: 20px;
+          line-height: 2.5;
+          background: #fffbf0;
+          min-height: 100vh;
+        }
+      </style>
+    </head>
+    <body>
+      ${cleanText}
+      <script>
+        window.onload = function() {
+          window.print();
+        }
+      </script>
+    </body>
+    </html>
+  `);
+  
+  printWindow.document.close();
+};
     const canvas = await html2canvas(pdfRef.current, {
       scale: 3,
       backgroundColor: '#fffbf0',

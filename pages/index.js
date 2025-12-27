@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import { FileDown, RefreshCw, Copy, Check } from 'lucide-react';
-import dynamic from 'next/dynamic';
 
 const NoritoApp = () => {
   const [inputText, setInputText] = useState('');
@@ -119,97 +118,49 @@ const NoritoApp = () => {
   };
 
   const handlePrintPDF = () => {
-  if (!convertedText) return;
-  
-  // 印刷用のウィンドウを作成
-  const printWindow = window.open('', '_blank');
-  const cleanText = convertedText.replace(/class="text-sm align-text-top"/g, 'style="font-size: 0.7em; vertical-align: top;"');
-  
-  printWindow.document.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="UTF-8">
-      <title>祝詞</title>
-      <style>
-        @media print {
-          @page {
-            size: A4 portrait;
-            margin: 20mm;
+    if (!convertedText) return;
+    
+    const printWindow = window.open('', '_blank');
+    const cleanText = convertedText.replace(/class="text-sm align-text-top"/g, 'style="font-size: 0.7em; vertical-align: top;"');
+    
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>祝詞</title>
+        <style>
+          @media print {
+            @page {
+              size: A4 portrait;
+              margin: 20mm;
+            }
           }
-        }
-        body {
-          margin: 0;
-          padding: 20px;
-          font-family: "ヒラギノ明朝 Pro", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
-          writing-mode: vertical-rl;
-          text-orientation: upright;
-          font-size: 20px;
-          line-height: 2.5;
-          background: #fffbf0;
-          min-height: 100vh;
-        }
-      </style>
-    </head>
-    <body>
-      ${cleanText}
-      <script>
-        window.onload = function() {
-          window.print();
-        }
-      </script>
-    </body>
-    </html>
-  `);
-  
-  printWindow.document.close();
-};
-    const canvas = await html2canvas(pdfRef.current, {
-      scale: 3,
-      backgroundColor: '#fffbf0',
-      logging: false,
-      useCORS: true
-    });
-
-    // スタイルを元に戻す
-    pdfRef.current.style.cssText = originalStyle;
-
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-
-    const imgWidth = 210;
-    const pageHeight = 297;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-    pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-    pdf.save('祝詞.pdf');
-  } catch (error) {
-    console.error('PDF生成エラー:', error);
-    alert('PDF生成に失敗しました。');
-  }
-};
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      const imgWidth = 210;
-      const pageHeight = 297;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      pdf.save('祝詞.pdf');
-    } catch (error) {
-      console.error('PDF生成エラー:', error);
-      alert('PDF生成に失敗しました。');
-    }
+          body {
+            margin: 0;
+            padding: 20px;
+            font-family: "ヒラギノ明朝 Pro", "Hiragino Mincho Pro", "Yu Mincho", "YuMincho", serif;
+            writing-mode: vertical-rl;
+            text-orientation: upright;
+            font-size: 20px;
+            line-height: 2.5;
+            background: #fffbf0;
+            min-height: 100vh;
+          }
+        </style>
+      </head>
+      <body>
+        ${cleanText}
+        <script>
+          window.onload = function() {
+            window.print();
+          }
+        </script>
+      </body>
+      </html>
+    `);
+    
+    printWindow.document.close();
   };
 
   const handlePrintA3 = () => {
@@ -343,7 +294,7 @@ const NoritoApp = () => {
           <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <h3 className="font-bold text-gray-800 mb-2">印刷について</h3>
             <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
-              <li><strong>PDF出力:</strong> 画面表示そのままをPDFファイルで保存</li>
+              <li><strong>PDF出力:</strong> 新しいウィンドウが開き、印刷ダイアログで「PDFに保存」を選択してください</li>
               <li><strong>A3印刷:</strong> ブラウザの印刷ダイアログが開きます。用紙サイズをA3、横向きに設定してください</li>
             </ul>
           </div>
